@@ -65,8 +65,8 @@ func listView(m Model) string {
 
 	// Title line
 	agentCount := fmt.Sprintf("%d running", len(running))
-	title := TitleStyle.Render("cco status")
-	titleLine := title + " " + strings.Repeat("─", max(0, innerWidth-utf8.RuneCountInString("cco status")-utf8.RuneCountInString(agentCount)-3)) + " " + agentCount
+	title := TitleStyle.Render("cco dash")
+	titleLine := title + " " + strings.Repeat("─", max(0, innerWidth-utf8.RuneCountInString("cco dash")-utf8.RuneCountInString(agentCount)-3)) + " " + agentCount
 
 	topBorder := fr("╭─ ") + titleLine + fr("─╮")
 
