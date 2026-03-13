@@ -12,23 +12,16 @@ go install github.com/thirai/cco@latest
 
 ## Usage
 
+Open TUI Dashboard
+
 ```bash
-# Start an interactive agent
-cco agent
-
-# Pass a prompt directly
-cco agent -- -p "Fix the authentication bug in auth/login.go"
-
-# Use a specific model
-cco agent -- --model claude-opus-4-6 -p "Refactor the database layer"
-
-# Open the TUI dashboard
 cco status
 ```
 
-`--dangerously-skip-permissions` is always prepended so agents run without interactive permission prompts.
-
-Run `cco agent` in as many terminals as you like, then open `cco status` in another pane to monitor them all.
+Start an interactive agent
+```bash
+cco agent
+```
 
 ### Key bindings
 
@@ -45,10 +38,10 @@ Run `cco agent` in as many terminals as you like, then open `cco status` in anot
 | Symbol | Meaning |
 |--------|---------|
 | `⠋ running` | Claude is actively processing |
-| `⏳ waiting you` | Idle at prompt, waiting for input |
-| `✓ success` | Exited with code 0 |
-| `✗ failed` | Exited with non-zero code |
-| `✕ killed` | Terminated by signal |
+| `waiting you` | Idle at prompt, waiting for input |
+| `success` | Exited with code 0 |
+| `failed` | Exited with non-zero code |
+| `killed` | Terminated by signal |
 
 Finished agents remain visible for 5 minutes after exit.
 
