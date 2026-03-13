@@ -52,43 +52,6 @@ cco status
 
 Open as many `cco agent` sessions as you like in separate terminals, then run `cco status` in another pane to monitor them all.
 
-## TUI
-
-### List view
-
-```
-╭─ cco status ─────────────────────────────────── 2 running ─╮
-│ RUNNING                                                      │
-│  ▶ cco-29514-a3f1   ⏳ waiting you   0:02:31   Fix auth...  │
-│    cco-29514-c8e2   ⠋ running        0:01:05   Writing te…  │
-├──────────────────────────────────────────────────────────────┤
-│ SUCCESS (recent)                                             │
-│    cco-29514-b1d0   ✓ success        0:05:10                 │
-├──────────────────────────────────────────────────────────────┤
-│ KILLED (recent)                                              │
-│    (none)                                                    │
-├──────────────────────────────────────────────────────────────┤
-│ [↑↓/jk] select  [space] detail  [K] kill  [q] quit          │
-╰──────────────────────────────────────────────────────────────╯
-```
-
-### Detail view (press `space`)
-
-```
-╭─ cco-29514-a3f1 ─────────────────────────────────────────────╮
-│ Status : ⏳ waiting you                                       │
-│ PID    : 83201                                                │
-│ Dir    : /Users/you/projects/myapp                            │
-│ Args   : --dangerously-skip-permissions -p "Fix auth..."      │
-│ Started: 2025-06-01 10:22:31                                  │
-│ Elapsed: 0:02:31                                              │
-│ Last   : Writing tests for the auth module                    │
-│ ── Activity Log ──────────────────────────────────────────── │
-│  (scrollable filtered log)                                    │
-╰───────────────────────────────────────────────────────────────╯
-[esc] back  [K] kill  [↑↓/jk/pgup/pgdn] scroll
-```
-
 ### Key bindings
 
 | Key | Action |
