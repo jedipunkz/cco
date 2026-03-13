@@ -22,5 +22,5 @@ func Execute() {
 func init() {
 	rootCmd.AddCommand(daemonCmd)
 	rootCmd.AddCommand(agentCmd)
-	rootCmd.AddCommand(statusCmd)
+	rootCmd.AddCommand(dashCmd)
 }
