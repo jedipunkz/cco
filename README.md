@@ -5,7 +5,7 @@ Launch and monitor multiple [Claude Code](https://claude.ai/code) agents from a 
 ## Installation
 
 ```bash
-go install github.com/thirai/cco@latest
+go install github.com/jedipunkz/cco@latest
 ```
 
 **Requirements**: `claude` CLI must be on your `$PATH`.
