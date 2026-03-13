@@ -15,7 +15,7 @@ go install github.com/jedipunkz/cco@latest
 Open TUI Dashboard
 
 ```bash
-cco status
+cco dash
 ```
 
 Start an interactive agent
