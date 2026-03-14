@@ -186,9 +186,9 @@ func listView(m Model) string {
 
 	// Help line at bottom
 	lines = append(lines, divider)
-	historyLabel := "[h] show history"
+	historyLabel := "[o] show history"
 	if m.showExpired {
-		historyLabel = "[h] hide history"
+		historyLabel = "[o] hide history"
 	}
 	helpText := "[↑↓/jk] select  [space] detail  [y] yank  [K] kill  " + historyLabel + "  [q] quit"
 	if m.statusMsg != "" {

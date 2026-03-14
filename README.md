@@ -33,7 +33,7 @@ cco agent
 | `esc` / `q` | Back to list or quit |
 | `y` | Yank — copy `cd <worktree-path>` to clipboard |
 | `K` | Kill selected agent (SIGTERM) |
-| `h` | Toggle showing full agent history |
+| `o` | Toggle showing full agent history |
 
 ### Status indicators
 
