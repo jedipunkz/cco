@@ -35,18 +35,19 @@ type clearStatusMsg struct{}
 
 // Model is the main bubbletea model for cco status.
 type Model struct {
-	agents      []store.AgentState
-	cursor      int
-	view        ViewMode
-	client      *store.Client
-	sub         chan store.Message
-	spinner     spinner.Model
-	viewport    viewport.Model
-	width       int
-	height      int
-	logContent  string
-	showExpired bool
-	statusMsg   string
+	agents       []store.AgentState
+	cursor       int
+	scrollOffset int
+	view         ViewMode
+	client       *store.Client
+	sub          chan store.Message
+	spinner      spinner.Model
+	viewport     viewport.Model
+	width        int
+	height       int
+	logContent   string
+	showExpired  bool
+	statusMsg    string
 }
 
 func newModel(client *store.Client, sub chan store.Message) Model {
@@ -98,12 +99,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor > 0 {
 				m.cursor--
 			}
+			m.scrollOffset = clampScroll(m.cursor, m.scrollOffset, m.listAvailableRows())
 
 		case "down", "j":
 			visible := visibleAgents(m.agents, m.showExpired)
 			if m.cursor < len(visible)-1 {
 				m.cursor++
 			}
+			m.scrollOffset = clampScroll(m.cursor, m.scrollOffset, m.listAvailableRows())
 
 		case " ":
 			visible := visibleAgents(m.agents, m.showExpired)
@@ -121,6 +124,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor >= len(visible) && len(visible) > 0 {
 				m.cursor = len(visible) - 1
 			}
+			m.scrollOffset = clampScroll(m.cursor, m.scrollOffset, m.listAvailableRows())
 
 		case "K":
 			visible := visibleAgents(m.agents, m.showExpired)
@@ -187,6 +191,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.cursor >= len(visible) && len(visible) > 0 {
 			m.cursor = len(visible) - 1
 		}
+		m.scrollOffset = clampScroll(m.cursor, m.scrollOffset, m.listAvailableRows())
 		// If in detail view, reload log for selected agent
 		if m.view == viewDetail && len(visible) > 0 && m.cursor < len(visible) {
 			cmds = append(cmds, loadLog(visible[m.cursor].LogFile))
@@ -237,6 +242,59 @@ func (m Model) View() string {
 
 func sortAgents(agents []store.AgentState) {
 	sort.Slice(agents, func(i, j int) bool {
-		return agents[i].StartedAt.Before(agents[j].StartedAt)
+		return agents[i].StartedAt.After(agents[j].StartedAt)
 	})
+}
+
+// clampScroll adjusts the scroll offset so that cursor remains in the visible window.
+func clampScroll(cursor, offset, availRows int) int {
+	if cursor < offset {
+		offset = cursor
+	}
+	if availRows > 0 && cursor >= offset+availRows {
+		offset = cursor - availRows + 1
+	}
+	if offset < 0 {
+		offset = 0
+	}
+	return offset
+}
+
+// listAvailableRows returns the number of rows available for agent entries in the list view.
+func (m Model) listAvailableRows() int {
+	threshold := recentThreshold()
+	runCount, sucCount, kilCount := 0, 0, 0
+	for _, a := range m.agents {
+		switch a.Status {
+		case store.StatusRunning:
+			runCount++
+		case store.StatusSuccess:
+			if m.showExpired || (a.FinishedAt != nil && a.FinishedAt.After(threshold)) {
+				sucCount++
+			}
+		case store.StatusKilled, store.StatusFailed:
+			if m.showExpired || (a.FinishedAt != nil && a.FinishedAt.After(threshold)) {
+				kilCount++
+			}
+		}
+	}
+	emptyCount := 0
+	if runCount == 0 {
+		emptyCount++
+	}
+	if sucCount == 0 {
+		emptyCount++
+	}
+	if kilCount == 0 {
+		emptyCount++
+	}
+	h := m.height
+	if h < 10 {
+		h = 24
+	}
+	avail := h - 10 - emptyCount
+	if avail < 0 {
+		avail = 0
+	}
+	return avail
 }
