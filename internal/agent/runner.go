@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"os/signal"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -100,26 +99,12 @@ func Run(args []string, socketPath string, name string) error {
 	}
 	defer ptmx.Close()
 
-	// Propagate terminal resize events to the PTY.
-	sigWinch := make(chan os.Signal, 1)
-	signal.Notify(sigWinch, syscall.SIGWINCH)
-	defer signal.Stop(sigWinch)
-
 	// done is closed when the PTY read loop finishes so background goroutines exit.
 	done := make(chan struct{})
 	defer close(done)
 
-	go func() {
-		for {
-			select {
-			case <-done:
-				return
-			case <-sigWinch:
-				_ = pty.InheritSize(os.Stdin, ptmx)
-			}
-		}
-	}()
-	_ = pty.InheritSize(os.Stdin, ptmx) // set initial size
+	// Propagate terminal resize events to the PTY (Unix only).
+	setupWinchHandler(ptmx, done)
 
 	// Put our own stdin in raw mode so keystrokes go straight through.
 	if term.IsTerminal(int(os.Stdin.Fd())) {

@@ -2,7 +2,6 @@ package tui
 
 import (
 	"sort"
-	"syscall"
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
@@ -123,8 +122,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if len(visible) > 0 && m.cursor < len(visible) {
 				ag := visible[m.cursor]
 				if ag.PID > 0 && ag.Status == store.StatusRunning {
-					_ = syscall.Kill(ag.PID, syscall.SIGTERM)
-					_ = syscall.Kill(-ag.PID, syscall.SIGTERM) // process group
+					killProcess(ag.PID)
 					// Optimistic update: mark killed immediately in local model
 					now := time.Now()
 					ag.Status = store.StatusKilled
