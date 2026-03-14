@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -84,9 +83,7 @@ func ensureDaemon(socketPath string) error {
 	daemonCmd.Stdout = nil
 	daemonCmd.Stderr = nil
 	daemonCmd.Stdin = nil
-	// Setsid puts the daemon in a new session so it is detached from the
-	// controlling terminal and will not be killed when the user's shell exits.
-	daemonCmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+	setDaemonSysProcAttr(daemonCmd)
 	if err := daemonCmd.Start(); err != nil {
 		return fmt.Errorf("could not start daemon: %w", err)
 	}
@@ -128,7 +125,7 @@ func killDaemon(socketPath string) {
 		pidFile := filepath.Join(home, ".cco", "daemon.pid")
 		if data, err := os.ReadFile(pidFile); err == nil {
 			if pid, err := strconv.Atoi(strings.TrimSpace(string(data))); err == nil {
-				_ = syscall.Kill(pid, syscall.SIGTERM)
+				killPID(pid)
 			}
 		}
 	}
