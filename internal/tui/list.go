@@ -97,7 +97,7 @@ func listView(m Model) string {
 		idWidth      = 17
 		statusWidth  = 11
 		elapsedWidth = 9
-		endedWidth   = 5
+		endedWidth   = 11
 		fixedTotal   = 2 + idWidth + 1 + statusWidth + 1 + elapsedWidth + 1 + endedWidth
 	)
 
@@ -122,9 +122,9 @@ func listView(m Model) string {
 		if agent.Name != "" {
 			label = agent.Name
 		}
-		endedAt := "     "
+		endedAt := "           "
 		if agent.FinishedAt != nil {
-			endedAt = agent.FinishedAt.Format("15:04")
+			endedAt = agent.FinishedAt.Format("01/02 15:04")
 		}
 		row := cursor +
 			padRight(truncate(label, idWidth), idWidth) + " " +
@@ -142,60 +142,84 @@ func listView(m Model) string {
 		return NormalItemStyle.Render(row)
 	}
 
-	// Priority-based row allocation: RUNNING > SUCCESS > KILLED.
+	// Compute available rows for agent entries.
 	// Fixed frame lines: topBorder + colHeader + 3 section headers + 2 section dividers + bottom divider + help + bottomBorder = 10.
-	const fixedFrameLines = 10
-	availableRows := height - fixedFrameLines
-	if availableRows < 0 {
-		availableRows = 0
+	emptyCount := 0
+	if len(running) == 0 {
+		emptyCount++
 	}
-	runningNeed := len(running)
-	if runningNeed == 0 {
-		runningNeed = 1 // "(none)" line
+	if len(success) == 0 {
+		emptyCount++
 	}
-	runningAlloc := min(runningNeed, availableRows)
-	availableRows -= runningAlloc
+	if len(killed) == 0 {
+		emptyCount++
+	}
+	availableRows := max(0, height-10-emptyCount)
 
-	successNeed := len(success)
-	if successNeed == 0 {
-		successNeed = 1 // "(none)" line
-	}
-	successAlloc := min(successNeed, availableRows)
-	availableRows -= successAlloc
+	// Compute per-section slice bounds based on scroll offset.
+	// Flat visible list order: running[0..], success[0..], killed[0..]
+	offset := m.scrollOffset
+	windowEnd := offset + availableRows
 
-	killedNeed := len(killed)
-	if killedNeed == 0 {
-		killedNeed = 1 // "(none)" line
+	// Running: global indices [0, len(running))
+	runSliceStart, runSliceLen := 0, 0
+	if len(running) > 0 {
+		s := max(0, offset)
+		e := min(len(running), windowEnd)
+		if s < e {
+			runSliceStart = s
+			runSliceLen = e - s
+		}
 	}
-	killedAlloc := min(killedNeed, availableRows)
 
-	// renderSection renders a section header + agent rows into the outer frame,
-	// showing at most maxRows data lines. Returns the next available visible index.
-	renderSection := func(title string, headerStyle lipgloss.Style, agents []store.AgentState, startIdx int, maxRows int) int {
+	// Success: global indices [len(running), len(running)+len(success))
+	sucBase := len(running)
+	sucSliceStart, sucSliceLen := 0, 0
+	if len(success) > 0 {
+		s := max(0, offset-sucBase)
+		e := min(len(success), windowEnd-sucBase)
+		if s < e {
+			sucSliceStart = s
+			sucSliceLen = e - s
+		}
+	}
+
+	// Killed: global indices [len(running)+len(success), ...)
+	kilBase := len(running) + len(success)
+	kilSliceStart, kilSliceLen := 0, 0
+	if len(killed) > 0 {
+		s := max(0, offset-kilBase)
+		e := min(len(killed), windowEnd-kilBase)
+		if s < e {
+			kilSliceStart = s
+			kilSliceLen = e - s
+		}
+	}
+
+	// renderSection renders a section header + agent rows into the outer frame.
+	// baseGlobalIdx is the global index of agents[0] in the flat visible list.
+	// sliceStart/sliceLen control which agents within the section to show.
+	renderSection := func(title string, headerStyle lipgloss.Style, agents []store.AgentState, baseGlobalIdx int, sliceStart int, sliceLen int) {
 		lines = append(lines, fr("│ ")+padRight(headerStyle.Render(title), innerWidth)+fr(" │"))
 		if len(agents) == 0 {
-			if maxRows > 0 {
-				lines = append(lines, fr("│ ")+padRight(NormalItemStyle.Render("  (none)"), innerWidth)+fr(" │"))
-			}
-			return startIdx
+			lines = append(lines, fr("│ ")+padRight(NormalItemStyle.Render("  (none)"), innerWidth)+fr(" │"))
+			return
 		}
-		shown := agents
-		if maxRows >= 0 && len(shown) > maxRows {
-			shown = shown[:maxRows]
+		end := sliceStart + sliceLen
+		if end > len(agents) {
+			end = len(agents)
 		}
-		for _, agent := range shown {
-			lines = append(lines, fr("│ ")+padRight(renderRow(agent, startIdx), innerWidth)+fr(" │"))
-			startIdx++
+		for i := sliceStart; i < end; i++ {
+			globalIdx := baseGlobalIdx + i
+			lines = append(lines, fr("│ ")+padRight(renderRow(agents[i], globalIdx), innerWidth)+fr(" │"))
 		}
-		return startIdx
 	}
 
-	idx := 0
-	idx = renderSection("RUNNING", RunningHeaderStyle, running, idx, runningAlloc)
+	renderSection("RUNNING", RunningHeaderStyle, running, 0, runSliceStart, runSliceLen)
 	lines = append(lines, divider)
-	idx = renderSection(successTitle, SuccessHeaderStyle, success, idx, successAlloc)
+	renderSection(successTitle, SuccessHeaderStyle, success, len(running), sucSliceStart, sucSliceLen)
 	lines = append(lines, divider)
-	renderSection(killedTitle, KilledHeaderStyle, killed, idx, killedAlloc)
+	renderSection(killedTitle, KilledHeaderStyle, killed, len(running)+len(success), kilSliceStart, kilSliceLen)
 
 	// Fill remaining height with blank lines (divider + help + bottom = 3 lines)
 	for len(lines) < height-3 {
