@@ -31,7 +31,9 @@ cco agent
 | `k` / `↑` | Move cursor up |
 | `space` | Open detail view |
 | `esc` / `q` | Back to list or quit |
+| `y` | Yank — copy `cd <worktree-path>` to clipboard |
 | `K` | Kill selected agent (SIGTERM) |
+| `o` | Toggle showing expired agents |
 
 ### Status indicators
 
