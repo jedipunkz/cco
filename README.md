@@ -1,5 +1,10 @@
 # ax - Agent Cross
 
+[![CI](https://github.com/jedipunkz/ax/actions/workflows/ci.yml/badge.svg)](https://github.com/jedipunkz/ax/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jedipunkz/ax)](https://goreportcard.com/report/github.com/jedipunkz/ax)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Go version](https://img.shields.io/badge/go-1.25-blue)
+
 Launch and monitor multiple [Claude Code](https://claude.ai/code) agents from a single terminal.
 
 ## Installation
