@@ -160,7 +160,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.scrollOffset = clampScroll(m.cursor, m.scrollOffset, m.listAvailableRows())
 
-		case "s":
+		case "/":
 			if m.view == viewList {
 				m.searchMode = true
 				m.searchQuery = ""
