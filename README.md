@@ -39,6 +39,7 @@ ax agent
 | `y` | Yank — copy `cd <worktree-path>` to clipboard |
 | `K` | Kill selected agent (SIGTERM) |
 | `o` | Toggle showing full agent history |
+| `/` | Search agents by ID or name |
 
 ### Status indicators
 
