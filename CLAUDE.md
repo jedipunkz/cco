@@ -67,15 +67,19 @@ Each element in the JSON array has the following fields:
 | WaitingUser | bool | `waiting_user` | Optional; omitted when false |
 | WorktreeBranch | string | `worktree_branch` | Optional; omitted when no worktree |
 
-### Compatibility Rules
+### Compatibility Goal
 
-- **Never remove or rename a JSON field.** Consumers (TUI, daemon, future tools) may depend on any field. If a field becomes obsolete, deprecate it with a comment and keep it in the struct.
-- **Always use `omitempty` for optional/new fields.** New fields added to `AgentState` must be optional so that old `state.json` files without the field remain valid.
-- **Do not change field semantics.** If a field's meaning changes, add a new field instead of repurposing the existing one.
+The bar for compatibility is simple: **if a user restores their `~/.ax/` data, `ax dash` should display their agents correctly.** As long as that holds, the implementation is compatible.
+
+### Rules
+
+- **Adding new fields to `AgentState` is always fine.** Use `omitempty` so that existing `state.json` files missing the field remain valid.
+- **Removing or renaming a field that `ax dash` depends on for display requires a migration** (see below).
 - **Writes are atomic.** The daemon writes `state.json` via a `.tmp` + `os.Rename` pattern. Always preserve this to avoid corrupt reads.
-- **Status values are an enum.** Only add new status strings; never change the string value of an existing constant (`StatusRunning`, `StatusSuccess`, `StatusFailed`, `StatusKilled`).
-- **Agent ID format is stable.** The `ax-<unix-ts>-<4hex>` format is used as a directory name under `agents/` and `worktrees/`. Do not change it without migrating both the state and the filesystem paths.
-- **IPC protocol (`Message` type).** The `type` field supports `"update"`, `"subscribe"`, and `"snapshot"`. Add new message types additively; do not repurpose existing ones.
+
+### Migration
+
+When a breaking schema change is necessary (e.g. renaming a field, changing a Status string value, or altering the agent ID format), implement a migration rather than leaving existing data broken. A migration reads the old format on daemon startup, transforms the data to the new format, and writes it back. Document the migration clearly in the commit message.
 
 ## Security Policy
 
