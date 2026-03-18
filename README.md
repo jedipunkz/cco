@@ -17,7 +17,7 @@ go install github.com/jedipunkz/ax@latest
 
 ## Usage
 
-Open TUI Dashboard
+Open Dashboard
 
 ```bash
 ax dash
