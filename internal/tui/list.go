@@ -157,7 +157,7 @@ func listView(m Model) string {
 	if remaining := max(0, innerWidth-fixedTotal-2); remaining > 8 {
 		colHeader += "  " + "Last Output"
 	}
-	colHeaderLine := fr("│ ") + padRight(ColHeaderStyle.Render(colHeader), innerWidth) + fr(" │")
+	colHeaderLine := fr("│ ") + padRight(OverviewLabelStyle.Render(colHeader), innerWidth) + fr(" │")
 
 	renderRow := func(agent store.AgentState, idx int) string {
 		cursor := "  "
