@@ -365,7 +365,7 @@ func (m Model) listAvailableRows() int {
 	if h < 10 {
 		h = 24
 	}
-	avail := h - 14 - emptyCount
+	avail := h - 13 - emptyCount
 	if avail < 0 {
 		avail = 0
 	}
