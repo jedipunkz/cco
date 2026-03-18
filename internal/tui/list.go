@@ -142,7 +142,6 @@ func listView(m Model) string {
 		lines = append(lines, renderOverviewLine("Branch:", branch))
 		lines = append(lines, renderOverviewLine("Args:", args))
 	}
-	lines = append(lines, divider)
 
 	// Fixed column widths: cursor(2) id(24) sp(1) status(11) sp(1) elapsed(9) sp(1) ended(11)
 	// ID format: "ax-{unix_minutes}-{4hex}" = 17 chars; name can be longer so give extra room
@@ -196,7 +195,7 @@ func listView(m Model) string {
 	}
 
 	// Compute available rows for agent entries.
-	// Fixed frame lines: topBorder + Overview divider + 5 overview + divider + colHeader + 3 section divider-headers + bottom divider + help + bottomBorder = 15.
+	// Fixed frame lines: topBorder + Overview divider + 5 overview + colHeader + 3 section divider-headers + bottom divider + help + bottomBorder = 14.
 	emptyCount := 0
 	if len(running) == 0 {
 		emptyCount++
@@ -207,7 +206,7 @@ func listView(m Model) string {
 	if len(killed) == 0 {
 		emptyCount++
 	}
-	availableRows := max(0, height-15-emptyCount)
+	availableRows := max(0, height-14-emptyCount)
 
 	// Compute per-section slice bounds based on scroll offset.
 	// Flat visible list order: running[0..], success[0..], killed[0..]
