@@ -83,7 +83,8 @@ func listView(m Model) string {
 	agentCount := fmt.Sprintf("%d running", len(running))
 	pathStr := m.workDir
 	dashes := max(0, innerWidth-utf8.RuneCountInString(pathStr)-utf8.RuneCountInString(agentCount)-3)
-	titleLine := fr(pathStr) + fr(" "+strings.Repeat("─", dashes)+" ") + agentCount
+	pathStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#f7768e"))
+	titleLine := pathStyle.Render(pathStr) + fr(" "+strings.Repeat("─", dashes)+" ") + agentCount
 
 	topBorder := fr("╭─ ") + titleLine + fr("─╮")
 
