@@ -81,13 +81,9 @@ func listView(m Model) string {
 
 	// Title line with full working directory path
 	agentCount := fmt.Sprintf("%d running", len(running))
-	pathPart := ""
-	if m.workDir != "" {
-		pathPart = " " + m.workDir
-	}
-	titleText := "ax dash" + pathPart
-	dashes := max(0, innerWidth-utf8.RuneCountInString(titleText)-utf8.RuneCountInString(agentCount)-3)
-	titleLine := TitleStyle.Render("ax dash") + fr(pathPart) + fr(" "+strings.Repeat("─", dashes)+" ") + agentCount
+	pathStr := m.workDir
+	dashes := max(0, innerWidth-utf8.RuneCountInString(pathStr)-utf8.RuneCountInString(agentCount)-3)
+	titleLine := fr(pathStr) + fr(" "+strings.Repeat("─", dashes)+" ") + agentCount
 
 	topBorder := fr("╭─ ") + titleLine + fr("─╮")
 
@@ -105,7 +101,7 @@ func listView(m Model) string {
 	divider := fr("├" + strings.Repeat("─", innerWidth+2) + "┤")
 
 	// Overview section divider header
-	lines = append(lines, renderSectionHeader("Overview", OverviewLabelStyle))
+	lines = append(lines, renderSectionHeader("Overview", NormalItemStyle))
 
 	// Detail overview section: show selected agent's Name, PID, Dir, Branch, Args.
 	{
