@@ -83,7 +83,8 @@ Finished agents are visible for the configured duration after exit (default: 7 d
 
 ```
 ~/.ax/
-├── ax.sock              # Unix domain socket (daemon IPC)
+├── ax.yaml               # Configuration (Optional)
+├── ax.sock               # Unix domain socket (daemon IPC)
 ├── state.json            # Agent state snapshot
 ├── agents/
 │   └── <id>/
