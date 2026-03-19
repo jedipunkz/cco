@@ -100,20 +100,11 @@ ax can be configured via `~/.ax/ax.yaml`.
 
 ### Color theme
 
-Set the `theme` key to choose a color theme for the dashboard:
+Set the `theme` key to choose a color theme for the dashboard. You can choose theme from tokyonight(default), kanagawa-wave, solarized-dark, catppussin.
 
 ```yaml
 theme: tokyonight
 ```
-
-Available themes:
-
-| Theme | Description |
-|-------|-------------|
-| `tokyonight` | Tokyo Night (default) |
-| `kanagawa-wave` | Kanagawa Wave |
-| `solarized-dark` | Solarized Dark |
-| `catppuccin` | Catppuccin |
 
 ### Finished agent display duration
 
@@ -125,7 +116,6 @@ duration_days: 7d
 
 The value must be a positive integer followed by `d` (e.g. `1d`, `7d`, `30d`). Default is `7d`.
 
-The section headers in the dashboard reflect the configured value (e.g. `Success (7d)`). Press `o` to show all finished agents regardless of this setting.
 
 ## License
 
