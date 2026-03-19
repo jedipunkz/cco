@@ -94,7 +94,7 @@ Finished agents are visible for the configured duration after exit (default: 7 d
 
 When `ax agent` is run inside a git repository, a dedicated worktree is automatically created at `~/.ax/worktrees/<repo>-<id>/` on a new branch `ax/<id>` branched from `HEAD`. Claude Code runs inside this isolated worktree so each agent's changes stay separate from the main working tree.
 
-## Configuration
+## Configuration (Optional)
 
 ax can be configured via `~/.ax/ax.yaml`.
 
@@ -108,14 +108,11 @@ theme: tokyonight
 
 ### Finished agent display duration
 
-Set the `duration_days` key to control how many days of finished (success/killed/failed) agents are shown in the dashboard:
+Set the `duration_days` key to control how many days of finished (success/killed/failed) agents are shown in the dashboard. The value must be a positive integer followed by `d` (e.g. `1d`, `7d`, `30d`). Default is `7d`.
 
 ```yaml
 duration_days: 7d
 ```
-
-The value must be a positive integer followed by `d` (e.g. `1d`, `7d`, `30d`). Default is `7d`.
-
 
 ## License
 
