@@ -3,8 +3,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
+	"github.com/jedipunkz/ax/internal/config"
 	"github.com/jedipunkz/ax/internal/tui"
+	"github.com/spf13/cobra"
 )
 
 var dashCmd = &cobra.Command{
@@ -20,6 +21,11 @@ var dashCmd = &cobra.Command{
 			return fmt.Errorf("could not start daemon: %w", err)
 		}
 
-		return tui.Run(socketPath)
+		cfg, err := config.Load()
+		if err != nil {
+			return fmt.Errorf("could not load config: %w", err)
+		}
+
+		return tui.Run(socketPath, cfg)
 	},
 }

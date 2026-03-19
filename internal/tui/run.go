@@ -4,11 +4,15 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/jedipunkz/ax/internal/config"
 	"github.com/jedipunkz/ax/internal/store"
 )
 
 // Run connects to the store daemon, subscribes for updates, and starts the TUI.
-func Run(socketPath string) error {
+// cfg is used to apply the user's chosen theme before rendering begins.
+func Run(socketPath string, cfg *config.Config) error {
+	ApplyTheme(cfg.Palette())
+
 	client := &store.Client{}
 	if err := client.Connect(socketPath); err != nil {
 		return fmt.Errorf("could not connect to store: %w", err)
