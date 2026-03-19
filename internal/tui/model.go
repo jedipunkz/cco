@@ -37,22 +37,23 @@ type clearStatusMsg struct{}
 
 // Model is the main bubbletea model for ax status.
 type Model struct {
-	agents       []store.AgentState
-	cursor       int
-	scrollOffset int
-	view         ViewMode
-	client       *store.Client
-	sub          chan store.Message
-	spinner      spinner.Model
-	viewport     viewport.Model
-	width        int
-	height       int
-	logContent   string
-	showExpired  bool
-	statusMsg    string
-	searchMode   bool
-	searchQuery  string
-	workDir      string
+	agents        []store.AgentState
+	cursor        int
+	scrollOffset  int
+	view          ViewMode
+	client        *store.Client
+	sub           chan store.Message
+	spinner       spinner.Model
+	spinnerActive bool
+	viewport      viewport.Model
+	width         int
+	height        int
+	logContent    string
+	showExpired   bool
+	statusMsg     string
+	searchMode    bool
+	searchQuery   string
+	workDir       string
 }
 
 func newModel(client *store.Client, sub chan store.Message) Model {
@@ -62,12 +63,13 @@ func newModel(client *store.Client, sub chan store.Message) Model {
 	workDir, _ := os.Getwd()
 
 	return Model{
-		agents:  []store.AgentState{},
-		client:  client,
-		sub:     sub,
-		spinner: sp,
-		view:    viewList,
-		workDir: workDir,
+		agents:        []store.AgentState{},
+		client:        client,
+		sub:           sub,
+		spinner:       sp,
+		spinnerActive: true,
+		view:          viewList,
+		workDir:       workDir,
 	}
 }
 
@@ -261,6 +263,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.view == viewDetail && len(groups) > 0 && m.cursor < len(groups) {
 			cmds = append(cmds, loadLog(groups[m.cursor].Rep.LogFile))
 		}
+		// Restart spinner if running agents appeared while it was stopped.
+		if m.hasRunningAgents() && !m.spinnerActive {
+			m.spinnerActive = true
+			cmds = append(cmds, m.spinner.Tick)
+		}
 		cmds = append(cmds, waitForMsg(m.sub))
 
 	case clearStatusMsg:
@@ -274,7 +281,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case spinner.TickMsg:
 		var cmd tea.Cmd
 		m.spinner, cmd = m.spinner.Update(msg)
-		cmds = append(cmds, cmd)
+		if m.hasRunningAgents() {
+			cmds = append(cmds, cmd)
+		} else {
+			m.spinnerActive = false
+		}
 
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -339,6 +350,16 @@ func firstMatchIndex(agents []store.AgentState, showExpired bool, query string) 
 		}
 	}
 	return 0
+}
+
+// hasRunningAgents returns true if any agent is currently running.
+func (m Model) hasRunningAgents() bool {
+	for _, a := range m.agents {
+		if a.Status == store.StatusRunning {
+			return true
+		}
+	}
+	return false
 }
 
 // listAvailableRows returns the number of rows available for agent entries in the list view.
