@@ -77,7 +77,7 @@ ax dash
 | `failed` | Exited with non-zero code |
 | `killed` | Terminated by signal |
 
-Finished agents are visible for 24 hours after exit. Press `o` to toggle their visibility.
+Finished agents are visible for the configured duration after exit (default: 7 days). Press `o` to toggle their visibility.
 
 ## Runtime files
 
@@ -114,6 +114,18 @@ Available themes:
 | `kanagawa-wave` | Kanagawa Wave |
 | `solarized-dark` | Solarized Dark |
 | `catppuccin` | Catppuccin |
+
+### Finished agent display duration
+
+Set the `duration_days` key to control how many days of finished (success/killed/failed) agents are shown in the dashboard:
+
+```yaml
+duration_days: 7d
+```
+
+The value must be a positive integer followed by `d` (e.g. `1d`, `7d`, `30d`). Default is `7d`.
+
+The section headers in the dashboard reflect the configured value (e.g. `Success (7d)`). Press `o` to show all finished agents regardless of this setting.
 
 ## License
 
