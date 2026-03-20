@@ -20,11 +20,15 @@ complete -c ax -n 'not __fish_seen_subcommand_from agent dash completion' -a com
 complete -c ax -n '__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from new resume' -a new    -d 'Start a new Claude Code agent'
 complete -c ax -n '__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from new resume' -a resume -d 'Resume a previous agent session by ID or name'
 
-# ax agent new: optional -n/--name flag
+# ax agent new: optional -n/--name flag and claude options
 complete -c ax -n '__fish_seen_subcommand_from agent; and __fish_seen_subcommand_from new' -s n -l name -d 'Name for the agent' -r
+complete -c ax -n '__fish_seen_subcommand_from agent; and __fish_seen_subcommand_from new' -l dangerously-skip-permissions -d 'Skip Claude permission prompts (claude option)'
+complete -c ax -n '__fish_seen_subcommand_from agent; and __fish_seen_subcommand_from new' -l enable-auto-mode -d 'Enable auto mode for Claude (claude option)'
 
-# ax agent resume: required -n/--name flag with dynamic agent completions
+# ax agent resume: required -n/--name flag with dynamic agent completions and claude options
 complete -c ax -n '__fish_seen_subcommand_from agent; and __fish_seen_subcommand_from resume' -s n -l name -d 'Agent ID or name' -r -a '(__ax_agents)'
+complete -c ax -n '__fish_seen_subcommand_from agent; and __fish_seen_subcommand_from resume' -l dangerously-skip-permissions -d 'Skip Claude permission prompts (claude option)'
+complete -c ax -n '__fish_seen_subcommand_from agent; and __fish_seen_subcommand_from resume' -l enable-auto-mode -d 'Enable auto mode for Claude (claude option)'
 
 # ax completion subcommands
 complete -c ax -n '__fish_seen_subcommand_from completion' -a bash       -d 'Generate bash completion script'
