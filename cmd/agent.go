@@ -10,13 +10,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/jedipunkz/ax/internal/agent"
+	"github.com/spf13/cobra"
 )
 
 var agentCmd = &cobra.Command{
-	Use:                "agent [-n <name>] [-- <claude-args>...]",
-	Short:              "Start a Claude Code agent",
+	Use:   "agent",
+	Short: "Manage Claude Code agents",
+}
+
+var agentNewCmd = &cobra.Command{
+	Use:                "new [-n <name>] [-- <claude-args>...]",
+	Short:              "Start a new Claude Code agent",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		socketPath, err := getSocketPath()
@@ -28,14 +33,41 @@ var agentCmd = &cobra.Command{
 			return fmt.Errorf("could not start daemon: %w", err)
 		}
 
-		name, rest := parseFlagsForAgent(args)
+		name, rest := parseNameFlag(args)
 		return agent.Run(rest, socketPath, name)
 	},
 }
 
-// parseFlagsForAgent extracts -n/--name from args (before any -- separator).
+var agentResumeCmd = &cobra.Command{
+	Use:                "resume -n <id|name> [-- <claude-args>...]",
+	Short:              "Resume a previous agent session by ID or name",
+	DisableFlagParsing: true,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		socketPath, err := getSocketPath()
+		if err != nil {
+			return err
+		}
+
+		if err := ensureDaemon(socketPath); err != nil {
+			return fmt.Errorf("could not start daemon: %w", err)
+		}
+
+		idOrName, rest, err := parseNameFlagRequired(args)
+		if err != nil {
+			return err
+		}
+		return agent.ResumeByIDOrName(rest, socketPath, idOrName)
+	},
+}
+
+func init() {
+	agentCmd.AddCommand(agentNewCmd)
+	agentCmd.AddCommand(agentResumeCmd)
+}
+
+// parseNameFlag extracts -n/--name from args (before any -- separator).
 // Unrecognised flags and positional arguments are returned in rest.
-func parseFlagsForAgent(args []string) (name string, rest []string) {
+func parseNameFlag(args []string) (name string, rest []string) {
 	i := 0
 	for i < len(args) {
 		if args[i] == "--" {
@@ -53,6 +85,15 @@ func parseFlagsForAgent(args []string) (name string, rest []string) {
 			rest = append(rest, args[i])
 			i++
 		}
+	}
+	return
+}
+
+// parseNameFlagRequired is like parseNameFlag but returns an error if -n/--name is absent.
+func parseNameFlagRequired(args []string) (name string, rest []string, err error) {
+	name, rest = parseNameFlag(args)
+	if name == "" {
+		err = fmt.Errorf("requires -n/--name to specify the agent ID or name")
 	}
 	return
 }

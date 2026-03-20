@@ -19,17 +19,23 @@ go install github.com/jedipunkz/ax@latest
 
 ### Start an agent
 
-**Important**: `cd` into your git repository before running `ax agent`. ax uses the current directory to detect the git repo and automatically creates an isolated worktree for the agent.
+**Important**: `cd` into your git repository before running `ax agent new`. ax uses the current directory to detect the git repo and automatically creates an isolated worktree for the agent.
 
 ```bash
 cd /path/to/your/repo
-ax agent
+ax agent new
 ```
 
 You can optionally give the agent a name:
 
 ```bash
-ax agent -n my-feature
+ax agent new -n my-feature
+```
+
+You can also pass Claude Code options after `--`:
+
+```bash
+ax agent new -n my-feature -- --model claude-opus-4-5
 ```
 
 ### Resume an agent
@@ -37,13 +43,13 @@ ax agent -n my-feature
 To resume a previous session by ID or name:
 
 ```bash
-ax resume -n <id|name>
+ax agent resume -n <id|name>
 ```
 
 You can also pass Claude Code options after `--`:
 
 ```bash
-ax resume -n my-feature -- --model claude-opus-4-5
+ax agent resume -n my-feature -- --model claude-opus-4-5
 ```
 
 ### Open the dashboard
