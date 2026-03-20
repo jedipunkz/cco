@@ -52,9 +52,9 @@ func Run(args []string, socketPath string, name string) error {
 	return runSession(args, socketPath, id, name, workDir, worktreeBranch, repoName)
 }
 
-// Resume finds an existing agent by name and runs claude --resume in its worktree.
-func Resume(args []string, socketPath string, name string) error {
-	existing, err := findAgentByName(name)
+// ResumeByIDOrName finds an existing agent by ID or name and runs claude --resume in its worktree.
+func ResumeByIDOrName(args []string, socketPath string, idOrName string) error {
+	existing, err := findAgentByIDOrName(idOrName)
 	if err != nil {
 		return err
 	}
@@ -65,11 +65,12 @@ func Resume(args []string, socketPath string, name string) error {
 
 	id := generateID()
 	resumeArgs := append([]string{"--resume"}, args...)
-	return runSession(resumeArgs, socketPath, id, name, existing.WorkDir, existing.WorktreeBranch, existing.RepoName)
+	return runSession(resumeArgs, socketPath, id, existing.Name, existing.WorkDir, existing.WorktreeBranch, existing.RepoName)
 }
 
-// findAgentByName reads state.json and returns the most recent agent matching name.
-func findAgentByName(name string) (store.AgentState, error) {
+// findAgentByIDOrName reads state.json and returns the agent matching the given ID exactly,
+// or falls back to the most recent agent matching by name.
+func findAgentByIDOrName(idOrName string) (store.AgentState, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return store.AgentState{}, fmt.Errorf("could not determine home directory: %w", err)
@@ -84,18 +85,26 @@ func findAgentByName(name string) (store.AgentState, error) {
 		return store.AgentState{}, fmt.Errorf("could not parse state file: %w", err)
 	}
 
-	sanitized := sanitizeBranchName(name)
+	// Search by ID first (exact match).
+	for i := range agents {
+		if agents[i].ID == idOrName {
+			return agents[i], nil
+		}
+	}
+
+	// Fall back to name search (most recent match).
+	sanitized := sanitizeBranchName(idOrName)
 	var best *store.AgentState
 	for i := range agents {
 		a := &agents[i]
-		if a.Name == name || (sanitized != "" && a.WorktreeBranch == sanitized) {
+		if a.Name == idOrName || (sanitized != "" && a.WorktreeBranch == sanitized) {
 			if best == nil || a.StartedAt.After(best.StartedAt) {
 				best = a
 			}
 		}
 	}
 	if best == nil {
-		return store.AgentState{}, fmt.Errorf("no agent found with name %q", name)
+		return store.AgentState{}, fmt.Errorf("no agent found with ID or name %q", idOrName)
 	}
 	return *best, nil
 }
