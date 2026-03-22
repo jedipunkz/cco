@@ -35,7 +35,7 @@ ax agent new -n my-feature
 You can also pass Claude Code options directly:
 
 ```bash
-ax agent new -n my-feature --model claude-opus-4-5
+ax agent new -n my-feature --model sonnet --dangerously-skip-permissions
 ```
 
 ### Resume an agent
@@ -49,7 +49,7 @@ ax agent resume -n <id|name>
 You can also pass Claude Code options directly:
 
 ```bash
-ax agent resume -n my-feature --model claude-opus-4-5
+ax agent resume -n my-feature --model opus --enable-auto-mode
 ```
 
 ### Open the dashboard
